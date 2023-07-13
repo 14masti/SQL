@@ -1,0 +1,78 @@
+--create table resh_emp as select * from king_emp;
+--select * from resh_emp;
+
+--1.List the employee numbers, name, job title and hiredate of the employees in department 10.
+select empno,ename,job,hiredate from resh_emp where dept_no=10;
+
+--2.Select the name & salary of all employees who are working as clerks. 
+select ename,sal from resh_emp where job='CLERK';
+
+--3.List the names, job title & salary of employees who were hired on December 17, 1980. 
+SELECT ENAME,JOB,SAL FROM RESH_EMP WHERE HIREDATE='1980-12-17';
+
+--4.Select the name, salary, and commission of employees whose commission is greater than their salary.
+select ename,sal,comm from resh_emp where comm>sal;
+
+--5.Display the names, monthly-salary, daily-salary, and hourly-salary for all the employees. 
+select ename,sal/12,sal/365,sal/(365*8) from resh_emp;
+
+/*6.Assume that salary column in the table is monthly salary, and the number of working days 
+	are 22 and the number of working hours per day are 8. Rename the columns as MONTHLY, 
+	DAILY, AND HOURLY.*/ 
+	
+select ENAME,sal as MONTHLYSAL,sal/22 AS DAILYSAL,sal/(22*8) AS HOURLYSAL FROM RESH_EMP;
+
+/*7.List the names and employee numbers of Managers who earn more than 2600/-. Display in 
+alphabetical order of their names. */
+
+SELECT EMPNO FROM RESH_EMP 
+WHERE JOB='MANAGER' AND SAL>2600 
+ORDER BY(ENAME) ASC;
+
+/*8.Select the information about Managers and President from the column job in the EMP 
+table.Order the result by name */
+SELECT ENAME FROM RESH_EMP
+WHERE JOB='MANAGER' OR JOB='PRESIDENT'
+ORDER BY(ENAME) ASC;
+
+
+--9.List the employee names that don’t end in ‘S’. 
+SELECT ENAME FROM RESH_EMP WHERE ENAME NOT LIKE '%S';
+
+--10. List the employee names that start with ‘C’. 
+SELECT ENAME FROM RESH_EMP WHERE ENAME LIKE 'C%';
+
+
+/*11. List the name, job and department numbers of those employees whose names fall in the 
+alphabetical range of ‘C’ to ‘F’. */
+SELECT ENAME,JOB,DEPT_NO FROM RESH_EMP 
+WHERE ENAME>='C' AND ENAME<='F'
+ORDER BY ENAME ASC;
+
+--12. Display the list of employee names starting with ‘I’ and ending with ‘R’.
+SELECT ENAME FROM RESH_EMP WHERE ENAME LIKE 'L%R';
+
+
+--13. Display the employee names which have ‘TII’ or ‘LL’ in them. 
+SELECT ENAME FROM RESH_EMP WHERE ENAME LIKE '%TII%' OR ENAME LIKE '%LL%';
+
+--14. Display the list of employees who were hired during 1983. 
+SELECT * FROM RESH_EMP WHERE EXTRACT(YEAR FROM HIREDATE)=1983;
+
+/*15. Display the data shown as follows 
+ Smith has held the position of clerk in department number 20 since 13-JUNE-83. 
+ Allen has held the position of clerk in department number 20 since 13-JUNE-83. 
+ Ward has held the position of clerk in department number 20 since 13-JUNE-83.*/
+ SELECT 
+ ENAME ||'HAS HELD THE POSITION OF'|| JOB ||'IN THE DEPARTMENT NUMBER'||DEPT_NO||'SINCE'||HIREDATE
+ FROM RESH_EMP
+ WHERE DEPT_NO=20 AND HIREDATE='1983-06-13';
+ 
+--16.List all rows from EMP table by converting the NULL values in COMM column to 0 (use NVL command)
+--SELECT COALESCE(COMM,0) AS COMMODIFED FROM RESH_EMP;
+
+--17. Write a query that will accept a given job title and displays all the records according to that title .
+
+
+
+
