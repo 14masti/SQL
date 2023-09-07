@@ -1,0 +1,89 @@
+CREATE TABLE masti_customer (
+    Cust_ID serial PRIMARY KEY,
+    Cust_FirstName varchar(50),
+    Cust_LastName varchar(58),
+    Cust_DOB date,
+    Cust_PANNo varchar(18),
+    Cust_Mobile int,
+    Cust_Address varchar(255),
+    Cust_LUser int,
+	Cust_GuardianName varchar(50),
+	Cust_LastUpdatedDate date,
+    FOREIGN KEY (Cust_LUser) REFERENCES masti_users(UserID)
+);
+-- Alter the table to set Cust_ID as a serial primary key
+
+
+
+
+
+CREATE TABLE masti_users (
+    UserID serial PRIMARY KEY,
+    Username varchar(255),
+	UserPassword varchar(255),
+    UserType varchar(50)
+);
+
+
+
+
+CREATE TABLE masti_loanTypes (
+    LoanType_ID serial PRIMARY KEY ,
+	LoanType_Name varchar(100),
+    LoanType_Desc varchar(255)
+);
+
+-- Assuming the table already exists, modify it to use serial for LoanType_ID
+
+
+CREATE TABLE masti_loanApplicants (
+    Inap_ID serial PRIMARY KEY,
+    Inap_Cust_ID int,
+    Inap_ApDate date,
+    Inap_Inty_ID int,
+    Inap_Amount numeric,
+    Inap_EMI_Range_From numeric,
+    Inap_EMI_Range_To numeric,
+    Inap_Nom_Requested numeric,
+    Inap_CIBIL_Score int,
+    Inap_Status varchar(4),
+    Inap_Conclusion_Remarks varchar(255),
+    Inap_Processed_User int,
+    Inap_Processed_Date date,
+    FOREIGN KEY (Inap_Cust_ID) REFERENCES masti_customer(Cust_ID),
+    FOREIGN KEY (Inap_Inty_ID) REFERENCES masti_loanTypes(LoanType_ID),
+    FOREIGN KEY (Inap_Processed_User) REFERENCES masti_users(UserID)
+);
+
+
+CREATE TABLE masti_loanApplicantNominees (
+    Inap_ID serial PRIMARY KEY ,
+    Inap_Nominee varchar(50),
+    Inap_Relation varchar(50),
+    FOREIGN KEY (Inap_ID) REFERENCES masti_loanApplicants(Inap_ID)
+);
+
+
+-- Inserting the first loan type
+INSERT INTO masti_loanTypes (LoanType_Name, LoanType_Desc)
+VALUES ('Personal Loan', 'Short-term unsecured personal loans.');
+
+-- Inserting the second loan type
+INSERT INTO masti_loanTypes (LoanType_Name, LoanType_Desc)
+VALUES ('Auto Loan', 'Loans for purchasing vehicles with collateral.');
+
+-- Inserting the third loan type
+INSERT INTO masti_loanTypes (LoanType_Name, LoanType_Desc)
+VALUES ('Home Loan', 'Long-term loans for buying or refinancing homes.');
+
+select * from masti_loanTypes;
+
+
+
+select * from masti_loanApplicantNominees
+
+
+
+
+
+drop table masti_customer,masti_users ;
