@@ -11,42 +11,20 @@ CREATE TABLE MGR_customer (
 	Cust_LastUpdatedDate date,
     FOREIGN KEY (Cust_LUser) REFERENCES MGR_users(UserID)
 );
--- Alter the table to set Cust_ID as a serial primary key
 
 
 
 
-
-CREATE TABLE MGR_users (
-    UserID serial PRIMARY KEY,
-    Username varchar(255),
-	UserPassword varchar(255),
-    UserType varchar(50)
+CREATE TABLE MGR_Users (
+    user_id SERIAL PRIMARY KEY,
+    user_name VARCHAR(255) NOT NULL,
+    user_cdate DATE NOT NULL,
+    user_type VARCHAR(50) NOT NULL,
+    user_pwd VARCHAR(255) NOT NULL,
+    user_email VARCHAR(255) NOT NULL,
+    user_recoveryemail VARCHAR(255),
+    user_mobile int
 );
-
-
-/**********************************************************/
-
-
-CREATE TABLE MGR_customer (
-    Cust_ID serial PRIMARY KEY,
-    Cust_FirstName varchar(50),
-    Cust_LastName varchar(58),
-    Cust_DOB date,
-    Cust_PANNo varchar(18),
-    Cust_Mobile int,
-    Cust_Address varchar(255),
-    Cust_LUser int,
-	Cust_GuardianName varchar(50),
-	Cust_LastUpdatedDate date,
-    FOREIGN KEY (Cust_LUser) REFERENCES MGR_users(User_ID)
-);
-
-
-
-
-///***********************************************************************/
-
 
 
 
@@ -57,7 +35,7 @@ CREATE TABLE MGR_loanTypes (
     LoanType_Desc varchar(255)
 );
 
--- Assuming the table already exists, modify it to use serial for LoanType_ID
+
 
 
 CREATE TABLE MGR_loanApplicants (
@@ -80,6 +58,8 @@ CREATE TABLE MGR_loanApplicants (
 );
 
 
+
+
 CREATE TABLE MGR_loanApplicantNominees (
     Inap_ID serial PRIMARY KEY ,
     Inap_Nominee varchar(50),
@@ -100,14 +80,61 @@ VALUES ('Auto Loan', 'Loans for purchasing vehicles with collateral.');
 INSERT INTO MGR_loanTypes (LoanType_Name, LoanType_Desc)
 VALUES ('Home Loan', 'Long-term loans for buying or refinancing homes.');
 
-select * from MGR_loanTypes;
-
-
-
-select * from MGR_loanApplicantNominees
 
 
 
 
+CREATE TABLE USERSessions (
+    ussn_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    ussn_sessionid VARCHAR(255) NOT NULL,
+    ussn_cdate DATE NOT NULL,
+    ussn_key VARCHAR(255) NOT NULL,
+    ussn_host VARCHAR(255),
+    ussn_expdate DATE,
+    ussn_status VARCHAR(50)
+);
 
-drop table MGR_customer,MGR_users ;
+
+CREATE TABLE CustomerUsers (
+    cust_id INT,
+    user_id INT,
+    PRIMARY KEY (cust_id, user_id),
+    FOREIGN KEY (cust_id) REFERENCES MGR_customer(cust_id),
+    FOREIGN KEY (user_id) REFERENCES MGR_users(user_id)
+);
+
+	
+	
+CREATE TABLE MGR_privileges (
+    priv_id int,
+    priv_name VARCHAR(255) NOT NULL,
+    priv_rpattern VARCHAR(255) NOT NULL
+);
+	
+	
+CREATE TABLE MGR_roles (
+    role_id int,
+    role_name VARCHAR(255) NOT NULL,
+    role_desc VARCHAR(255) NOT NULL
+);
+	
+CREATE TABLE MGR_userroles (
+    user_id INT,
+    role_id INT,
+    PRIMARY KEY (user_id, role_id)
+);	
+	
+	
+	
+CREATE TABLE MGR_roleprivileges (
+    role_id INT,
+    priv_id INT,
+    PRIMARY KEY (role_id, priv_id)
+);
+
+select * from MGR_Userroles
+select * from MGR_roleprivileges
+select * from MGR_roles
+select * from MGR_users
+
