@@ -138,3 +138,8 @@ select * from MGR_roleprivileges
 select * from MGR_roles
 select * from MGR_users
 
+
+
+https://getbootstrap.com/docs/5.0/components/collapse/
+// bootstrap collapse functionality
+
