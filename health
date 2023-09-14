@@ -101,5 +101,19 @@ VALUES
     (2,'Hospital 2', 'Location 2', 'Address 2', '9876543210', '1234567890', '54321', '2023-09-15', 'User 2'),
     (3,'Hospital 3', 'Location 3', 'Address 3', '5555555555', '6666666666', '67890', '2023-09-16', 'User 3');
 	
+
+
+
+	
+-- Inserting sample data into the masti_InsurancePackages table
+
+INSERT INTO masti_InsurancePackages (insp_id, insp_title, insp_desc, insp_status, insp_range_start, insp_range_end, insp_agelimit_start, insp_agelimit_end)
+VALUES
+(1, 'Insurance Package 1', 'Description 1', 'Active', 10000, 50000, 18, 65),
+(2, 'Insurance Package 2', 'Description 2', 'Active', 20000, 75000, 20, 60),
+(3, 'Insurance Package 3', 'Description 3', 'Inactive', 5000, 30000, 25, 70),
+(4, 'Insurance Package 4', 'Description 4', 'Active', 15000, 60000, 30, 75),
+(5, 'Insurance Package 5', 'Description 5', 'Active', 8000, 40000, 21, 67);
+
 	
 	
