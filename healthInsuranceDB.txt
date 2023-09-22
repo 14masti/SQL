@@ -109,3 +109,8 @@ CREATE TABLE InsurancePolicyPayments (
 );
 
 
+/-------- 4 tables are remaining
+1.Claims
+2.Claimsbills
+3.ReimbursementClaims
+4.hospitalClaims--------------/
