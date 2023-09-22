@@ -1,0 +1,111 @@
+CREATE TABLE InsurancePackages (
+    insp_id serial PRIMARY KEY, 
+    insp_title varchar(60),
+    insp_desc varchar(255),
+    insp_status char(2),
+    insp_range_start numeric,
+    insp_range_end numeric,
+    insp_agelimit_start int,
+    insp_agelimit_end int,
+    insp_cdate date
+);
+
+
+CREATE TABLE NetworkHospitals (
+    hosp_id serial PRIMARY KEY,  
+	hosp_title varchar(70),
+    hosp_location varchar(50),
+    hosp_address varchar(100),
+    hosp_contactmobile bigint,
+    hosp_contactphone bigint,
+    hosp_pincode int,
+    hosp_luudate date,
+    hosp_luuser int
+);
+
+
+CREATE TABLE Customers (
+    cust_id serial PRIMARY KEY,  
+    cust_fname varchar(50),
+    cust_lname varchar(50),
+    cust_dob date,
+    cust_address varchar(255),
+    cust_gender char(1),
+    cust_cdate date,
+    cust_aadhar bigint, 
+    cust_status char(2),
+    cust_luudate date,
+    cust_luuser int
+);
+
+
+CREATE TABLE Users (
+    user_id serial PRIMARY KEY,  
+	user_name varchar(255),  
+    user_cdate date,
+    user_pwd varchar(100),
+    user_type char(4),
+    user_status char(2)
+);
+
+CREATE TABLE Diseases (
+    disc_id serial PRIMARY KEY,  
+	disc_name varchar(100),
+    disc_icdcode varchar(10),
+    disc_desc varchar(255),
+    disc_status char(2)
+);
+
+
+CREATE TABLE InsurancePackageCoveredDiseases (
+    insp_id int,
+    disc_id int,
+    PRIMARY KEY (insp_id, disc_id),
+    FOREIGN KEY (insp_id) REFERENCES InsurancePackages (insp_id),
+    FOREIGN KEY (disc_id) REFERENCES Diseases (disc_id)
+);
+
+
+CREATE TABLE Agent (
+    agnt_id serial PRIMARY KEY, 
+	agnt_name varchar(255),
+    agnt_age int,
+    agnt_gender char(1)
+);
+
+
+CREATE TABLE InsurancePolicies (
+    iplc_id serial PRIMARY KEY,  
+	iplc_cust_id int,
+    iplc_cdate date,
+    iplc_sum_assured numeric,
+    iplc_applicable_date date,
+    iplc_insp_id int,
+    iplc_yrly_prem_amount numeric,
+    iplc_expdate date,
+    iplc_agnt_id int,
+    FOREIGN KEY (iplc_cust_id) REFERENCES Customers (cust_id),
+    FOREIGN KEY (iplc_insp_id) REFERENCES InsurancePackages (insp_id),
+    FOREIGN KEY (iplc_agnt_id) REFERENCES Agent (agnt_id)
+);
+
+
+CREATE TABLE InsurancePolicySchedule (
+    iplc_id int,
+    iplc_sindex smallint,
+    iplc_date date,
+    iplc_premium numeric,
+    iplc_paid_date date,
+    PRIMARY KEY (iplc_id, iplc_sindex),
+    FOREIGN KEY (iplc_id) REFERENCES InsurancePolicies (iplc_id)
+);
+
+CREATE TABLE InsurancePolicyPayments (
+    inpp_id serial PRIMARY KEY,  
+	inpp_iplc_id int,
+    inpp_trans_id varchar(50),
+    inpp_amount numeric,
+    inpp_paymode char(4)
+);
+
+
