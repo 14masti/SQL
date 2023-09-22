@@ -107,10 +107,44 @@ CREATE TABLE InsurancePolicyPayments (
     inpp_amount numeric,
     inpp_paymode char(4)
 );
+CREATE TABLE Claims (
+    clam_id serial PRIMARY KEY,
+    clam_source character(4),
+    clam_type character(4),
+    clam_date date,
+    clam_amount_requested numeric,
+    clam_iplc_id int,
+    clam_processed_amount numeric,
+    clam_processed_date date,
+    clam_processed_by int,
+    clam_remarks varchar(1000),
+    clam_status character(4)
+);
 
 
-/-------- 4 tables are remaining
+CREATE TABLE ClaimBills (
+    clam_id int,
+    clbl_billindex smallint,
+    clbl_document_title varchar(100),
+    clbl_document_path varchar(255),
+    clbl_claim_amount numeric,
+    clbl_processed_amount numeric,
+    clbl_processed_date date,
+    clbl_processed_by int,
+    clbl_remarks varchar(1000),
+    clbl_status character(4),
+    PRIMARY KEY (clam_id, clbl_billindex)
+);
+
+CREATE TABLE HospitalClaims (
+    clam_id int,
+    hclm_hosp_id int,
+    hclm_husr_id int
+);
+
+
+/-------- 4 tables are remaining are created without relations
 1.Claims
 2.Claimsbills
-3.ReimbursementClaims
+3.ReimbursementClaims  ----- this table is not  created
 4.hospitalClaims--------------/
