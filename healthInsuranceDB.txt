@@ -110,7 +110,7 @@ CREATE TABLE InsurancePolicyPayments (
 	inpp_iplc_id int,
     inpp_trans_id varchar(50),
     inpp_amount numeric,
-    inpp_paymode char(4)
+    inpp_paymode char(10)
 );
 CREATE TABLE Claims (
     clam_id serial PRIMARY KEY,
