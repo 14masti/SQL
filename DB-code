@@ -1,0 +1,101 @@
+/********************************* procedure for transaction generation *************************************************/
+
+    
+CREATE OR REPLACE FUNCTION CreatePolicyPayments(policy_id int) RETURNS void AS $$
+DECLARE
+    schedule_row record;
+BEGIN
+    -- Loop through the schedule records for the specified policy
+    FOR schedule_row IN
+        SELECT * FROM InsurancePolicySchedule
+        WHERE iplc_id = policy_id
+    LOOP
+        -- Insert a record into InsurancePolicyPayments with inpp_trans_id as NULL
+        INSERT INTO InsurancePolicyPayments (inpp_iplc_id,iplc_sindex, inpp_trans_id, inpp_amount, inpp_paymode)
+        VALUES (schedule_row.iplc_id,schedule_row.iplc_sindex, NULL, schedule_row.iplc_premium, 'CARD');
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-- Call the procedure for policy with ID 13
+SELECT CreatePolicyPayments(3);
+
+
+
+
+
+/******************************** transaction details cust by id query (customer side) ********************************/
+SELECT
+    IPP.inpp_id,
+    IPP.inpp_iplc_id,
+    IPP.inpp_trans_id,
+    IPP.inpp_amount,
+    IPP.inpp_paymode
+FROM
+    InsurancePolicyPayments AS IPP
+WHERE
+    IPP.inpp_iplc_id IN (
+        SELECT iplc_id
+        FROM InsurancePolicies
+        WHERE iplc_cust_id = ?
+    );
+
+/******************************* Customer table ***********************************/
+
+	CREATE TABLE Customers (
+    cust_id serial PRIMARY KEY,  
+    cust_fname varchar(50),
+    cust_lname varchar(50),
+    cust_dob date,
+    cust_address varchar(255),
+    cust_gender char(1),
+    cust_cdate date,
+    cust_aadhar bigint, 
+    cust_status char(2),
+    cust_luudate date,
+    cust_luuser int
+);
+
+/*************************** insurances policies ***********************************/
+
+
+CREATE TABLE InsurancePolicies (
+    iplc_id serial PRIMARY KEY,  
+	iplc_cust_id int,
+    iplc_cdate date,
+    iplc_sum_assured numeric,
+    iplc_applicable_date date,
+    iplc_insp_id int,
+    iplc_yrly_prem_amount numeric,
+    iplc_expdate date,
+    iplc_agnt_id int,
+    iplc_mode int,
+    FOREIGN KEY (iplc_cust_id) REFERENCES Customers (cust_id),
+    FOREIGN KEY (iplc_insp_id) REFERENCES InsurancePackages (insp_id),
+    FOREIGN KEY (iplc_agnt_id) REFERENCES Agent (agnt_id)
+);
+
+/*************************insurance policy schedule *****************************/
+CREATE TABLE InsurancePolicySchedule (
+    iplc_id int,
+    iplc_sindex smallint,
+    iplc_date date,
+    iplc_premium numeric,
+    iplc_paid_date date,
+    PRIMARY KEY (iplc_id, iplc_sindex),
+    FOREIGN KEY (iplc_id) REFERENCES InsurancePolicies (iplc_id)
+);
+
+/**************************** insurancepolicypayments ***************************/
+
+CREATE TABLE InsurancePolicyPayments (
+    inpp_id serial PRIMARY KEY, 
+    iplc_sindex int,
+	inpp_iplc_id int,
+    inpp_trans_id varchar(50),
+    inpp_amount numeric,
+    inpp_paymode char(10)
+);
