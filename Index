@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <style>
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1>Your Total Amount</h1><br><br>
+        <input type="number" id="amountInput" placeholder="Enter Amount" min="0" step="0.01"><br><br>
+        <button id="rzp-button1">
+            <i class="fas fa-money-bill"></i> Make Payment
+        </button>
+        <p id="amountMessage"></p>
+    </center>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.getElementById('rzp-button1').onclick = function () {
+            var amountInput = document.getElementById('amountInput');
+            var amountMessage = document.getElementById('amountMessage');
+            var amount = parseFloat(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                amountMessage.innerText = "Please enter a valid amount.";
+                return;
+            }
+
+            var options = {
+                "key": "rzp_test_ep0Ba9QlOmhL7w",
+                "amount": amount * 100, // Amount in paise (100 paise = 1 INR)
+                "currency": "INR",
+                "handler": function (response) {
+                    alert(response.razorpay_payment_id);
+                },
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+    </script>
+</body>
+
+</html>
