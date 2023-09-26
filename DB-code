@@ -24,6 +24,22 @@ $$ LANGUAGE plpgsql;
 SELECT CreatePolicyPayments(3);
 
 
+/********************** trigger for the payment trnsaction generation**************/
+-- Create or replace a trigger function
+CREATE OR REPLACE FUNCTION Trigger_CreatePolicyPayments()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Call the CreatePolicyPayments procedure with the newly inserted policy_id
+    PERFORM CreatePolicyPayments(NEW.iplc_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger on the InsurancePolicySchedule table
+CREATE TRIGGER schedule_insert_trigger
+AFTER INSERT ON InsurancePolicySchedule
+FOR EACH ROW
+EXECUTE FUNCTION Trigger_CreatePolicyPayments();
 
 
 
