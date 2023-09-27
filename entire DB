@@ -1,0 +1,191 @@
+/************customer table************/
+
+CREATE TABLE Customers (
+    cust_id serial PRIMARY KEY,  
+    cust_fname varchar(50),
+    cust_lname varchar(50),
+    cust_dob date,
+    cust_address varchar(255),
+    cust_gender char(1),
+    cust_cdate date,
+    cust_aadhar bigint, 
+    cust_status char(2),
+    cust_luudate date,
+    cust_luuser int
+);
+
+
+/*************************** insurances policies1 ***********************************/
+CREATE TABLE InsurancePolicies1 (
+    iplc_id serial PRIMARY KEY,  
+	iplc_cust_id int,
+    iplc_cdate date,
+    iplc_sum_assured numeric,
+    iplc_applicable_date date,
+    iplc_insp_id int,
+    iplc_yrly_prem_amount numeric,
+    iplc_expdate date,
+    iplc_agnt_id int,
+    iplc_paymode_count int,
+    iplc_status varchar(10),
+    FOREIGN KEY (iplc_cust_id) REFERENCES Customers (cust_id),
+    FOREIGN KEY (iplc_insp_id) REFERENCES InsurancePackages (insp_id),
+    FOREIGN KEY (iplc_agnt_id) REFERENCES Agent (agnt_id)
+);
+
+
+
+
+/*************************** insurancepolicySchedule ******************************/
+
+CREATE TABLE InsurancePolicySchedule (
+    iplc_id int,
+    iplc_sindex smallint,
+    iplc_date date,
+    iplc_premium numeric,
+    iplc_paid_date date,
+    PRIMARY KEY (iplc_id, iplc_sindex),
+    FOREIGN KEY (iplc_id) REFERENCES InsurancePolicies1 (iplc_id)
+);
+
+
+
+/******************************** insurancepolicypayments ********************************/
+
+CREATE TABLE InsurancePolicyPayments (
+    inpp_id serial PRIMARY KEY, 
+    iplc_sindex int,
+	  inpp_iplc_id int,
+    inpp_trans_id varchar(50),
+    inpp_amount numeric,
+    inpp_paymode char(10),
+    inpp_date DATE
+);
+
+/**************************  InsurancePolicyCoverageMembers  *************************/
+
+CREATE TABLE InsurancePolicyCoverageMembers (
+    ipcm_mindex serial PRIMARY KEY,
+    iplc_id int,
+    ipcm_membername varchar(60),
+    ipcm_relation varchar(60),
+    ipcm_dob date,
+    ipcm_gender char(1),
+    ipcm_healthhistory varchar(255),
+    FOREIGN KEY (iplc_id) REFERENCES InsurancePolicies1(iplc_id)
+);
+
+
+/***************************** agent table *************************/
+
+CREATE TABLE Agent (
+    agnt_id serial PRIMARY KEY, 
+	agnt_name varchar(255),
+    agnt_age int,
+    agnt_gender char(1)
+);
+
+
+/***************************** InsurancePackages  *****************************/
+
+CREATE TABLE InsurancePackages (
+    insp_id serial PRIMARY KEY, 
+    insp_title varchar(60),
+    insp_desc varchar(255),
+    insp_status char(2),
+    insp_range_start numeric,
+    insp_range_end numeric,
+    insp_agelimit_start int,
+    insp_agelimit_end int,
+    insp_cdate date
+);
+
+
+/********************************* payment to schedule date insertion trigger  **************************/
+
+CREATE OR REPLACE FUNCTION exe(
+    p_inpp_iplc_id integer,
+    p_iplc_sindex integer,
+    p_inpp_date date
+)
+RETURNS void AS $$
+BEGIN
+    RAISE NOTICE 'p_inpp_date: %', p_inpp_date;
+    IF EXISTS (
+        SELECT 1
+        FROM InsurancePolicySchedule
+        WHERE iplc_id = p_inpp_iplc_id
+        AND iplc_sindex = p_iplc_sindex
+    ) THEN
+        -- Cast p_inpp_date to date
+        UPDATE InsurancePolicySchedule
+        SET iplc_paid_date = p_inpp_date::date
+        WHERE iplc_id = p_inpp_iplc_id
+        AND iplc_sindex = p_iplc_sindex;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION update_iplc_paid_date_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Call the function to update the payment date
+    PERFORM exe(
+        NEW.inpp_iplc_id,
+        NEW.iplc_sindex,
+        NEW.inpp_date
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger that fires after an UPDATE on InsurancePolicyPayments
+CREATE TRIGGER update_iplc_paid_date_trigger
+AFTER UPDATE ON InsurancePolicyPayments
+FOR EACH ROW
+EXECUTE FUNCTION update_iplc_paid_date_trigger();
+
+
+/********************************* procedure for transaction generation(schedule to payment) *************************************************/
+
+    
+CREATE OR REPLACE FUNCTION CreatePolicyPayments(policy_id int) RETURNS void AS $$
+DECLARE
+    schedule_row record;
+BEGIN
+    -- Loop through the schedule records for the specified policy
+    FOR schedule_row IN
+        SELECT * FROM InsurancePolicySchedule
+        WHERE iplc_id = policy_id
+    LOOP
+        -- Insert a record into InsurancePolicyPayments with inpp_trans_id as NULL
+        INSERT INTO InsurancePolicyPayments (inpp_iplc_id,iplc_sindex, inpp_trans_id, inpp_amount, inpp_paymode)
+        VALUES (schedule_row.iplc_id,schedule_row.iplc_sindex, NULL, schedule_row.iplc_premium, 'CARD');
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-- Call the procedure for policy with ID 13
+SELECT CreatePolicyPayments(3);
+
+/********************** trigger for the payment trnsaction generation **************/
+-- Create or replace a trigger function
+CREATE OR REPLACE FUNCTION Trigger_CreatePolicyPayments()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Call the CreatePolicyPayments procedure with the newly inserted policy_id
+    PERFORM CreatePolicyPayments(NEW.iplc_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger on the InsurancePolicySchedule table
+CREATE TRIGGER schedule_insert_trigger
+AFTER INSERT ON InsurancePolicySchedule
+FOR EACH ROW
+EXECUTE FUNCTION Trigger_CreatePolicyPayments();
+
