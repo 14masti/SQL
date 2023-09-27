@@ -1,1 +1,45 @@
+/****************************** schedule table payment date updation ****************************/
+CREATE OR REPLACE FUNCTION exe(
+    p_inpp_iplc_id integer,
+    p_iplc_sindex integer,
+    p_inpp_date date
+)
+RETURNS void AS $$
+BEGIN
+    RAISE NOTICE 'p_inpp_date: %', p_inpp_date;
+    IF EXISTS (
+        SELECT 1
+        FROM InsurancePolicySchedule
+        WHERE iplc_id = p_inpp_iplc_id
+        AND iplc_sindex = p_iplc_sindex
+    ) THEN
+        -- Cast p_inpp_date to date
+        UPDATE InsurancePolicySchedule
+        SET iplc_paid_date = p_inpp_date::date
+        WHERE iplc_id = p_inpp_iplc_id
+        AND iplc_sindex = p_iplc_sindex;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION update_iplc_paid_date_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Call the function to update the payment date
+    PERFORM exe(
+        NEW.inpp_iplc_id,
+        NEW.iplc_sindex,
+        NEW.inpp_date
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger that fires after an UPDATE on InsurancePolicyPayments
+CREATE TRIGGER update_iplc_paid_date_trigger
+AFTER UPDATE ON InsurancePolicyPayments
+FOR EACH ROW
+EXECUTE FUNCTION update_iplc_paid_date_trigger();
+
 
